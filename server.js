@@ -9,7 +9,7 @@ const sequelize = require("./config/database");
 const bookRoutes = require("./routes/bookRoutes");
 const typeDefs = require("./graphql/schema");
 const resolvers = require("./graphql/resolvers");
-const authMiddleware = require("./middleware/authMiddleware");
+const authMiddleware = require("./middleware/authmiddleware");
 
 async function startServer() {
   const app = express();
