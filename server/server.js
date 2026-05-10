@@ -20,10 +20,8 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
-  // REST API Routes (Day 2)
   app.use("/api/books", bookRoutes);
 
-  // GraphQL Endpoint with JWT Context (Day 3)
   app.use(
     "/graphql",
     cors(),
