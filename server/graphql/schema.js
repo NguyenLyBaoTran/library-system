@@ -9,8 +9,11 @@ const typeDefs = gql`
     year: Int
   }
 
-  type AuthPayload {
-    token: String!
+  type User {
+    id: ID!
+    username: String!
+    email: String!
+    role: String
   }
 
   type Query {
@@ -18,6 +21,9 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    # Phải có dòng này thì server mới hết báo lỗi "Mutation.register defined in resolvers, but not in schema"
+    register(username: String!, email: String!, password: String!): String
+    
     login(username: String!, password: String!): String
     addBook(title: String!, author: String!, category: String, year: Int): Book
   }

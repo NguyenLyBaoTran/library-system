@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs"); // Nhớ npm install bcryptjs
 const Book = require("../models/Book");
+const User = require("../models/User");
 
 const resolvers = {
   Query: {
@@ -11,27 +13,28 @@ const resolvers = {
     },
   },
   Mutation: {
-    login: async (_, { username, password }) => {
-      // Mock authentication
-      if (username === "admin" && password === "password123") {
-        return jwt.sign(
-          { id: 1, role: "admin" },
-          process.env.JWT_SECRET || "secret",
-          { expiresIn: "1h" }
-        );
-      }
-      throw new Error("Invalid username or password");
+    register: async (_, { username, email, password }) => {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await User.create({ username, email, password: hashedPassword });
+      return "User registered successfully!";
     },
-    addBook: async (_, args, context) => {
-      if (!context.isAuth) {
-        throw new Error("Forbidden: You do not have permission");
-      }
-      
-      // Basic Validation
-      if (!args.title || args.title.trim() === "") {
-        throw new Error("Validation Error: Title is required");
-      }
 
+    login: async (_, { username, password }) => {
+      const user = await User.findOne({ where: { username } });
+      if (!user) throw new Error("User not found");
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) throw new Error("Invalid credentials");
+
+      return jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "1h" }
+      );
+    },
+
+    addBook: async (_, args, context) => {
+      if (!context.isAuth) throw new Error("Forbidden: You do not have permission");
       return await Book.create(args);
     },
   },

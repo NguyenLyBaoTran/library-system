@@ -3,13 +3,16 @@ const express = require("express");
 const cors = require("cors");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
-const { json } = require("body-parser");
 const sequelize = require("./config/database");
 
 const bookRoutes = require("./routes/bookRoutes");
 const typeDefs = require("./graphql/schema");
 const resolvers = require("./graphql/resolvers");
 const authMiddleware = require("./middleware/authMiddleware");
+
+const Book = require("./models/Book");
+const User = require("./models/User");
+const BorrowRecord = require("./models/BorrowRecord");
 
 async function startServer() {
   const app = express();
@@ -22,10 +25,9 @@ async function startServer() {
 
   app.use("/api/books", bookRoutes);
 
+  // GraphQL Endpoint with JWT Context (Day 3)
   app.use(
     "/graphql",
-    cors(),
-    json(),
     expressMiddleware(server, {
       context: async ({ req }) => authMiddleware(req),
     })
@@ -34,7 +36,7 @@ async function startServer() {
   const PORT = process.env.PORT || 5000;
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`GraphQL Endpoint: http://localhost:${PORT}/graphql`);
