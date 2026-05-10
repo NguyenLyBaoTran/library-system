@@ -23,11 +23,13 @@ async function startServer() {
   app.use("/api/books", bookRoutes);
 
   app.use(
-    "/graphql",
-    expressMiddleware(server, {
-      context: async ({ req }) => authMiddleware(req),
-    })
-  );
+  "/graphql",
+  cors(),
+  json(), 
+  expressMiddleware(server, {
+    context: async ({ req }) => authMiddleware(req),
+  })
+);
 
   const PORT = process.env.PORT || 5000;
   try {
