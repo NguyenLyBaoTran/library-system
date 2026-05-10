@@ -10,6 +10,9 @@ const typeDefs = require("./graphql/schema");
 const resolvers = require("./graphql/resolvers");
 const authMiddleware = require("./middleware/authMiddleware");
 
+const User = require("./models/User");
+const BorrowRecord = require("./models/BorrowRecord");
+
 async function startServer() {
   const app = express();
   const server = new ApolloServer({ typeDefs, resolvers });
@@ -33,7 +36,7 @@ async function startServer() {
   const PORT = process.env.PORT || 5000;
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`GraphQL Endpoint: http://localhost:${PORT}/graphql`);
