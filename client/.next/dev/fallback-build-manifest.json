@@ -1,17 +1,16 @@
 {
   "pages": {
     "/_app": [
-      "static/chunks/node_modules_next_dist_compiled_0o6l_m6._.js",
-      "static/chunks/node_modules_next_dist_shared_lib_0n1wg2c._.js",
-      "static/chunks/node_modules_next_dist_client_0pe1dg-._.js",
-      "static/chunks/node_modules_next_dist_0u_w_5s._.js",
-      "static/chunks/node_modules_next_app_0jt-zj..js",
-      "static/chunks/[next]_entry_page-loader_ts_0j~flwh._.js",
-      "static/chunks/node_modules_react-dom_0bruynb._.js",
-      "static/chunks/node_modules_0lx093h._.js",
-      "static/chunks/[root-of-the-server]__0c0okpg._.js",
-      "static/chunks/pages__app_07xvfw~._.js",
-      "static/chunks/turbopack-pages__app_0-bg2z-._.js"
+      "static/chunks/059b_next_dist_compiled_0uzi290._.js",
+      "static/chunks/059b_next_dist_shared_lib_0pcyi4m._.js",
+      "static/chunks/059b_next_dist_client_12awots._.js",
+      "static/chunks/059b_next_dist_0q5iwn_._.js",
+      "static/chunks/059b_react-dom_0oego5m._.js",
+      "static/chunks/059b_0924eig._.js",
+      "static/chunks/[root-of-the-server]__00sbps9._.js",
+      "static/chunks/client_styles_globals_0ov30fh.css",
+      "static/chunks/client_pages__app_07xvfw~._.js",
+      "static/chunks/turbopack-client_pages__app_0qxnvsb._.js"
     ]
   },
   "devFiles": [],

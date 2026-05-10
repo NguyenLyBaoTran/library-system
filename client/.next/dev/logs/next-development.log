@@ -1,1 +1,5 @@
-{"timestamp":"00:00:00.559","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:00.806","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:02:42.525","source":"Browser","level":"LOG","message":"Refreshing page data due to server-side change"}
+{"timestamp":"00:02:42.743","source":"Server","level":"WARN","message":"⚠ Fast Refresh had to perform a full reload when ./client/pages/_app.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload"}
+{"timestamp":"00:02:42.761","source":"Server","level":"LOG","message":"✓ Compiled in 1219ms"}
+{"timestamp":"00:04:33.572","source":"Server","level":"LOG","message":"✓ Compiled in 107ms"}

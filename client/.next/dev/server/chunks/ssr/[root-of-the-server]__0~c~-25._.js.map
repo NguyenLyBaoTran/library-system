@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":["file:///Applications/XAMPP/xamppfiles/htdocs/library-system/client/components/Navbar.jsx"],"sourcesContent":["import Link from \"next/link\";\n\nexport default function Navbar() {\n  return (\n    <nav style={{ padding: \"10px\", borderBottom: \"1px solid #ddd\" }}>\n      <Link href=\"/books\">📚 Books</Link>\n    </nav>\n  );\n}"],"names":["Navbar","style","padding","borderBottom","href"],"mappings":";;;;;AAAA;;;AAEe,SAASA;IACtB,qBACE,qKAAC;QAAIC,OAAO;YAAEC,SAAS;YAAQC,cAAc;QAAiB;kBAC5D,cAAA,qKAAC,0IAAI;YAACC,MAAK;sBAAS;;;;;;;;;;;AAG1B"}},
+    {"offset": {"line": 60, "column": 0}, "map": {"version":3,"sources":["file:///Applications/XAMPP/xamppfiles/htdocs/library-system/client/pages/_app.js"],"sourcesContent":["import Navbar from \"../components/Navbar\";\n\nexport default function App({ Component, pageProps }) {\n  return (\n    <>\n      <Navbar />\n      <Component {...pageProps} />\n    </>\n  );\n}"],"names":["App","Component","pageProps"],"mappings":";;;;;AAAA;;;AAEe,SAASA,IAAI,EAAEC,SAAS,EAAEC,SAAS,EAAE;IAClD,qBACE;;0BACE,qKAAC,mIAAM;;;;;0BACP,qKAACD;gBAAW,GAAGC,SAAS;;;;;;;;AAG9B"}}]
+}
