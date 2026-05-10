@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
-const { json } = require("body-parser");
 const sequelize = require("./config/database");
 
 const bookRoutes = require("./routes/bookRoutes");
@@ -23,7 +22,7 @@ async function startServer() {
   app.use(cors());
   
   // Express 5 đôi khi cần parser mạnh hơn ở mức toàn cục
-  app.use(express.json({ limit: '50mb' })); 
+  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
   app.use("/api/books", bookRoutes);
@@ -32,7 +31,6 @@ async function startServer() {
   app.use(
     "/graphql",
     // Ta truyền middleware json trực tiếp vào đây để ép Express 5 xử lý body cho Apollo
-    express.json(), 
     expressMiddleware(server, {
       context: async ({ req }) => authMiddleware(req),
     })
