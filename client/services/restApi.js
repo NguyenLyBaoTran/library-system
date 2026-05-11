@@ -1,31 +1,33 @@
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL =
+  "https://library-backend-production-244f.up.railway.app";
 
-export const getBooks = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/books`);
+export async function getBookById(id) {
+  const response = await fetch(
+    `${BASE_URL}/api/books/${id}`
+  );
 
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
+  return await response.json();
+}
+
+export async function createBook(
+  bookData,
+  token
+) {
+  const response = await fetch(
+    `${BASE_URL}/api/books`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify(bookData),
     }
+  );
 
-    return await res.json();
-  } catch (error) {
-    console.error("getBooks error:", error);
-    return [];
-  }
-};
-
-export const getBookById = async (id) => {
-  try {
-    const res = await fetch(`${BASE_URL}/books/${id}`);
-
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("getBookById error:", error);
-    return null;
-  }
-};
+  return await response.json();
+}

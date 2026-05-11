@@ -1,68 +1,50 @@
 import { gql } from "@apollo/client";
-
 import client from "./apolloClient";
 
 export async function loginUser(
   username,
   password
 ) {
-  const LOGIN_MUTATION = gql`
-    mutation Login(
-      $username: String!
-      $password: String!
-    ) {
+  const mutation = gql`
+    mutation {
       login(
-        username: $username
-        password: $password
+        username: "${username}"
+        password: "${password}"
       )
     }
   `;
 
   const result = await client.mutate({
-    mutation: LOGIN_MUTATION,
-    variables: {
-      username,
-      password,
-    },
+    mutation,
   });
 
   return result.data.login;
 }
 
-// REGISTER
 export async function registerUser(
   username,
   email,
   password
 ) {
-  const REGISTER_MUTATION = gql`
-    mutation Register(
-      $username: String!
-      $email: String!
-      $password: String!
-    ) {
+  const mutation = gql`
+    mutation {
       register(
-        username: $username
-        email: $email
-        password: $password
+        username: "${username}"
+        email: "${email}"
+        password: "${password}"
       )
     }
   `;
 
   const result = await client.mutate({
-    mutation: REGISTER_MUTATION,
-    variables: {
-      username,
-      email,
-      password,
-    },
+    mutation,
   });
 
   return result.data.register;
 }
 
 export async function getAllBooks() {
-  const GET_BOOKS = gql`
+  const query = gql`
     query {
       getAllBooks {
         id
@@ -70,52 +52,36 @@ export async function getAllBooks() {
         author
         category
         year
+        isAvailable
       }
     }
   `;
 
   const result = await client.query({
-    query: GET_BOOKS,
+    query,
     fetchPolicy: "no-cache",
   });
 
   return result.data.getAllBooks;
 }
 
-export async function addBook(
-  title,
-  author,
-  category,
-  year
+export async function borrowBook(
+  book_id
 ) {
-  const ADD_BOOK_MUTATION = gql`
-    mutation AddBook(
-      $title: String!
-      $author: String!
-      $category: String
-      $year: Int
-    ) {
-      addBook(
-        title: $title
-        author: $author
-        category: $category
-        year: $year
+  const mutation = gql`
+    mutation {
+      borrowBook(
+        book_id: "${book_id}"
       ) {
         id
-        title
+        status
       }
     }
   `;
 
   const result = await client.mutate({
-    mutation: ADD_BOOK_MUTATION,
-    variables: {
-      title,
-      author,
-      category,
-      year,
-    },
+    mutation,
   });
 
-  return result.data.addBook;
+  return result.data.borrowBook;
 }

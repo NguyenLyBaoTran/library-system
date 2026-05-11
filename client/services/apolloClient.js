@@ -7,7 +7,7 @@ import {
 import { HttpLink } from "@apollo/client/link/http";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:5000/graphql",
+  uri: "https://library-backend-production-244f.up.railway.app/graphql",
 });
 
 const authLink = new ApolloLink(
@@ -18,13 +18,14 @@ const authLink = new ApolloLink(
       token = localStorage.getItem("token");
     }
 
-    operation.setContext({
+    operation.setContext(({ headers = {} }) => ({
       headers: {
+        ...headers,
         authorization: token
           ? `Bearer ${token}`
           : "",
       },
-    });
+    }));
 
     return forward(operation);
   }
@@ -32,6 +33,7 @@ const authLink = new ApolloLink(
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
+
   cache: new InMemoryCache(),
 });
 

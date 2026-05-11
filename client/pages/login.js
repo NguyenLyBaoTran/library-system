@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 import Navbar from "../components/Navbar";
 
@@ -14,69 +15,139 @@ export default function LoginPage() {
   const [password, setPassword] =
     useState("");
 
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
+    setError("");
+
     try {
-      const token = await loginUser(
-        username,
-        password
-      );
+      const result =
+        await loginUser(
+          username,
+          password
+        );
+
+      // backend trả token hoặc object
+      const token =
+        result?.token || result;
+
+      const role =
+        result?.role || "user";
 
       localStorage.setItem(
         "token",
         token
       );
 
-      alert("Login successful!");
+      localStorage.setItem(
+        "username",
+        username
+      );
 
-      router.push("/graphql-demo");
+      localStorage.setItem(
+        "role",
+        role
+      );
+
+      window.location.href =
+        "/books";
     } catch (error) {
       console.log(error);
 
-      alert("Login failed");
+      setError(
+        "Invalid username or password"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-[#F8FAF5]">
       <Navbar />
 
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center px-6 py-20">
         <form
           onSubmit={handleLogin}
-          className="border p-8 rounded-xl shadow-md w-full max-w-md"
+          className="bg-white border border-[#E2E9D1] rounded-3xl shadow-sm w-full max-w-md p-10"
         >
-          <h1 className="text-3xl font-bold mb-6 text-center">
-            Login
-          </h1>
+          <div className="mb-10 text-center">
+            <p className="text-[11px] font-black uppercase tracking-[0.35em] text-[#87A96B] mb-4">
+              Digital Archive Access
+            </p>
 
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full border p-3 rounded mb-4"
-            value={username}
-            onChange={(e) =>
-              setUsername(e.target.value)
-            }
-          />
+            <h1 className="text-4xl font-serif font-bold text-gray-900">
+              Welcome Back
+            </h1>
 
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border p-3 rounded mb-4"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-          />
+            <p className="text-gray-500 mt-3">
+              Login to continue to the
+              Library System
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Username"
+              className="w-full border border-[#DDE5CF] bg-[#FDFEFB] p-4 rounded-2xl outline-none focus:border-[#87A96B] transition"
+              value={username}
+              onChange={(e) =>
+                setUsername(
+                  e.target.value
+                )
+              }
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full border border-[#DDE5CF] bg-[#FDFEFB] p-4 rounded-2xl outline-none focus:border-[#87A96B] transition"
+              value={password}
+              onChange={(e) =>
+                setPassword(
+                  e.target.value
+                )
+              }
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-500 text-sm rounded-xl px-4 py-3">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-3 rounded"
+            disabled={loading}
+            className="w-full mt-6 bg-[#87A96B] hover:bg-[#76945E] disabled:opacity-70 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:-translate-y-1"
           >
-            Login
+            {loading
+              ? "Logging In..."
+              : "Login"}
           </button>
+
+          <p className="text-center text-sm text-gray-500 mt-8">
+            Don't have an account?{" "}
+
+            <Link
+              href="/register"
+              className="text-[#87A96B] font-semibold hover:underline"
+            >
+              Register
+            </Link>
+          </p>
         </form>
       </div>
     </div>
