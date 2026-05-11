@@ -1,111 +1,119 @@
-Library System - REST vs GraphQL Implementation
+# Library Management System (Dual-API Architecture)
 
-1. Project Overview
+This project is a Library Management System built with Node.js, Express, Sequelize, and Apollo Server. It implements a dual-stack API design, supporting both RESTful and GraphQL endpoints to manage books, users, and borrowing records.
 
-This project is a Library Management System developed as part of the Web Programming & Applications course.  
-It demonstrates the comparison between REST API and GraphQL API in terms of performance, flexibility, and data fetching efficiency.
+## Deployment Information
+- **Live API URL:** https://library-backend-production-244f.up.railway.app/
+- **GraphQL Endpoint:** https://library-backend-production-244f.up.railway.app/graphql
+- **REST Base URL:** https://library-backend-production-244f.up.railway.app/api/books
+- **Frontend Integration:** (Optional) Ready for connection via Apollo Client or Axios.
 
-The system includes:
-- Backend API using Node.js and Express
-- Database using MySQL
-- RESTful API implementation
-- GraphQL API implementation using Apollo Server
-- Frontend built with Next.js
-- Benchmark comparison between REST and GraphQL
+## Key Features
+- Dual-API Design: Full support for REST and GraphQL to compare efficiency (Over-fetching/Under-fetching).
+- Authentication and Authorization: Stateless security using JWT (JSON Web Tokens).
+- Role-based Access Control: Differentiation between Admin (Manage books/returns) and User (Borrow books).
+- Stateless Architecture: No session storage, making it scalable and modern.
 
-2. Technology Stack
+---
 
-Frontend:
-- Next.js
-- React
-- CSS / TailwindCSS
+## Setup Instructions
 
-Backend:
-- Node.js
-- Express.js
-- Sequelize ORM
-- GraphQL (Apollo Server)
-- REST API
+### 1. Prerequisites
+- Node.js installed (v16 or higher).
+- MySQL database (Railway Cloud Database).
 
-Database:
-- MySQL
+### 2. Installation
+1. Clone the repository:
+```bash
+git clone [https://github.com/NguyenLyBaoTran/library-system.git](https://github.com/NguyenLyBaoTran/library-system.git)
 
-3. Project Structure
+```
 
-See full structure in project root folder:
-- client/: Frontend application
-- server/: Backend application
-- docs/: UML diagrams and report
-- presentation/: Slides and video
+2. Navigate to the server directory:
 
-4. Installation Guide
-
-Step 1: Clone repository
-git clone <repository-url>
-
-Step 2: Backend setup
+```bash
 cd server
+
+```
+
+3. Install dependencies:
+
+```bash
 npm install
 
-Step 3: Create environment file
-Create .env file in server folder:
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=library_db
+```
+
+### 3. Running the Server
+
+```bash
+# Start server with Nodemon (Development)
+npm run dev
+
+```
+
+---
+
+## Environment Variables (.env)
+
+Create a .env file in the server directory:
+
+```env
 PORT=5000
+JWT_SECRET=secret
+DB_NAME=railway
+DB_USER=root
+DB_PASSWORD=your_railway_password
+DB_HOST=your_railway_host_url
+DB_PORT=your_railway_port
 
-Step 4: Run backend
-npm run dev
+```
 
-Step 5: Frontend setup
-cd client
-npm install
-npm run dev
+---
 
-5. API Architecture
+## Testing Credentials (REQUIRED)
 
-REST API:
-- /api/books
-- /api/users
-- /api/borrow
+Use these pre-registered accounts to test the system:
 
-GraphQL API:
-- Query: books, users
-- Mutation: createBook, updateBook, deleteBook
+| Role | Username | Password | Permissions |
+| --- | --- | --- | --- |
+| Admin | admin_library | password123 | Add/Update/Delete/Return Books |
+| User | user_test | password123 | View books, Borrow books |
 
-6. System Architecture
+---
 
-The system follows a 3-tier architecture:
-- Presentation Layer: Next.js frontend
-- Application Layer: Express backend
-- Data Layer: MySQL database
+## API Documentation
 
-7. Key Features
+### 1. GraphQL Endpoint
 
-- Book management (CRUD)
-- User management
-- Borrow/Return system
-- JWT Authentication
-- REST API implementation
-- GraphQL API implementation
-- Performance comparison dashboard
+* URL: http://localhost:5000/graphql (Local) or [Your-Railway-Link]/graphql
+* Use Case: Optimized for Frontend to fetch exactly what data is needed.
+* Example Query (Get all available books):
 
-8. Benchmark Analysis
+```graphql
+query {
+  getAllBooks {
+    id
+    title
+    isAvailable
+  }
+}
 
-The project compares:
-- REST over-fetching and under-fetching issues
-- GraphQL single-request efficiency
-- Payload size differences
-- Network request comparison
+```
 
-9. Authors
+### 2. RESTful Endpoints
 
-Trân - Backend Lead
-Vy - Frontend Lead
+* Base URL: http://localhost:5000/api/books (Local) or [Your-Railway-Link]/api/books
+* Use Case: Administrative tasks or checking full book history.
+* Endpoints:
+* GET /api/books: List all books (Shows Over-fetching).
+* GET /api/books/:id: Book details with borrowing history (Shows Under-fetching).
+* POST /api/books: Admin adds new books (Supports Bulk Create).
+* DELETE /api/books/:id: Admin removes a book.
 
-10. Notes
 
-- .env file is ignored for security reasons
-- node_modules is excluded from repository
-- Database must be running before backend startup
+
+---
+
+## Implementation Detail (Rubric ID: 3)
+
+This system demonstrates how GraphQL solves Over-fetching (by allowing clients to select specific fields) and how REST can suffer from Under-fetching (requiring multiple calls or large nested objects to get related data like BorrowRecords). Both APIs share the same Sequelize Models to ensure data consistency and system integrity.
