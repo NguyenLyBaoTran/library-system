@@ -28,7 +28,10 @@ async function startServer() {
   app.use(
     "/graphql",
     expressMiddleware(server, {
-      context: async ({ req }) => authMiddleware(req),
+      context: async ({ req }) => {
+        const user = authMiddleware(req); 
+        return { user };
+      },
     })
   );
 
