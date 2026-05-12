@@ -43,10 +43,11 @@ async function startServer() {
     User.hasMany(BorrowRecord, { foreignKey: 'user_id' });
     BorrowRecord.belongsTo(User, { foreignKey: 'user_id' });
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`GraphQL Endpoint: http://localhost:${PORT}/graphql`);
+     console.log(`✅ Server is running on port ${PORT}`);
+      console.log(`🚀 REST API: https://library-backend-production-244f.up.railway.app/api/books`);
+      console.log(`🚀 GraphQL: https://library-backend-production-244f.up.railway.app/graphql`);
     });
   } catch (error) {
     console.error("Unable to connect to the database:", error);
