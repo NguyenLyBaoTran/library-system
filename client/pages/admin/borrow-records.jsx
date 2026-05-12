@@ -8,15 +8,27 @@ export default function BorrowRecordsPage() {
   const fetchRecords = async () => {
     try {
       setLoading(true);
-      
-      const [resBooks, resUsers] = await Promise.all([
-        fetch(`https://library-backend-production-244f.up.railway.app/api/books`),
-        fetch(`https://library-backend-production-244f.up.railway.app/api/users`).catch(() => null)
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Authorization": token ? `Bearer ${token}` : "",
+        "Content-Type": "application/json"
+      };
+
+      const [resBooksGraphQL, resUsers] = await Promise.all([
+        fetch(`https://library-backend-production-244f.up.railway.app/graphql`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `query { getAllBooks { id title isAvailable } }`
+          })
+        }),
+        fetch(`https://library-backend-production-244f.up.railway.app/api/users`, { headers }).catch(() => null)
       ]);
 
-      const allBooks = await resBooks.json();
-      let userMap = {};
+      const resultGraphQL = await resBooksGraphQL.json();
+      const allBooks = resultGraphQL.data?.getAllBooks || [];
       
+      let userMap = {};
       if (resUsers && resUsers.ok) {
         const allUsers = await resUsers.json();
         allUsers.forEach(u => {
@@ -25,7 +37,7 @@ export default function BorrowRecordsPage() {
       }
 
       const detailPromises = allBooks.map(book => 
-        fetch(`https://library-backend-production-244f.up.railway.app/api/books/${book.id}`)
+        fetch(`https://library-backend-production-244f.up.railway.app/api/books/${book.id}`, { headers })
           .then(res => res.json())
           .catch(() => null)
       );
@@ -37,17 +49,13 @@ export default function BorrowRecordsPage() {
         if (book && book.borrow_records) {
           book.borrow_records.forEach(rec => {
             const userData = userMap[rec.user_id] || { username: "user_test", email: "user@test.com" };
+            const isActuallyBorrowed = rec.status === "borrowed" && !book.isAvailable;
             
-            // Logic: Nếu sách Available hoặc record đánh dấu returned thì coi như đã trả
-            const isReturned = book.isAvailable || rec.status === "returned";
-            const compositeKey = `${rec.user_id}-${book.title}`;
-            
-            // Tính toán thời gian trả: Ưu tiên updatedAt, nếu trùng với borrow_date thì cộng thêm 2 giờ cho khác biệt
-            let calculatedReturnDate = rec.updatedAt || rec.borrow_date;
-            if (isReturned && calculatedReturnDate === rec.borrow_date) {
-               const dateObj = new Date(rec.borrow_date);
-               dateObj.setHours(dateObj.getHours() + 2); 
-               calculatedReturnDate = dateObj.toISOString();
+            let returnDate = rec.return_date || rec.updatedAt;
+            if (!isActuallyBorrowed && returnDate === rec.borrow_date) {
+               const d = new Date(rec.borrow_date);
+               d.setHours(d.getHours() + 2);
+               returnDate = d.toISOString();
             }
 
             const currentData = {
@@ -55,13 +63,13 @@ export default function BorrowRecordsPage() {
               book_title: book.title,
               username: userData.username,
               email: userData.email,
-              finalStatus: isReturned ? "returned" : "borrowed",
-              displayBorrowDate: rec.borrow_date,
-              displayReturnDate: isReturned ? calculatedReturnDate : null
+              finalStatus: isActuallyBorrowed ? "borrowed" : "returned",
+              displayBorrowDate: rec.borrow_date || rec.createdAt,
+              displayReturnDate: isActuallyBorrowed ? null : returnDate
             };
 
-            if (!latestRecordsMap.has(compositeKey) || rec.id > latestRecordsMap.get(compositeKey).id) {
-              latestRecordsMap.set(compositeKey, currentData);
+            if (!latestRecordsMap.has(book.id) || rec.id > latestRecordsMap.get(book.id).id) {
+              latestRecordsMap.set(book.id, currentData);
             }
           });
         }
@@ -83,14 +91,11 @@ export default function BorrowRecordsPage() {
     fetchRecords();
   }, []);
 
-  const formatDateTime = (dateStr) => {
-    if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+  const formatDT = (str) => {
+    if (!str) return "N/A";
+    return new Date(str).toLocaleString('en-GB', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     });
   };
 
@@ -104,22 +109,19 @@ export default function BorrowRecordsPage() {
             <h2 className="text-5xl font-serif font-bold text-gray-900 italic tracking-tight">
               Library History
             </h2>
-            <p className="mt-3 text-gray-500 font-medium italic">Detailed activity log with unique timestamps.</p>
+            <p className="mt-3 text-gray-500 font-medium italic">Unique activity log with full timeline.</p>
           </div>
-          <button 
-            onClick={fetchRecords}
-            className="text-[10px] font-black uppercase tracking-[0.3em] text-[#87A96B] hover:text-gray-900 transition-all"
-          >
+          <button onClick={fetchRecords} className="text-[10px] font-black uppercase tracking-[0.3em] text-[#87A96B] hover:text-gray-900 transition-all">
             Refresh Data
           </button>
         </div>
 
         <div className="bg-white border border-[#E2E9D1] rounded-[2.5rem] overflow-hidden flex flex-col max-h-[750px] shadow-sm">
           <div className="grid grid-cols-5 gap-4 px-10 py-7 border-b border-[#E2E9D1] bg-[#F8FAF5] text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 sticky top-0 z-10">
-            <div>User</div>
-            <div>Contact</div>
-            <div>Book</div>
-            <div>Action</div>
+            <div>User Account</div>
+            <div>Email Address</div>
+            <div>Book Title</div>
+            <div>Status</div>
             <div>Timeline</div>
           </div>
 
@@ -128,49 +130,33 @@ export default function BorrowRecordsPage() {
               <div className="p-24 text-center text-[#87A96B] font-black uppercase tracking-[0.5em] animate-pulse text-xs">
                 Syncing History...
               </div>
-            ) : records.length === 0 ? (
-              <div className="p-24 text-center text-gray-400 italic font-medium">
-                No history records found.
-              </div>
             ) : (
               records.map((record) => (
-                <div key={`${record.user_id}-${record.book_title}`} className="grid grid-cols-5 gap-4 px-10 py-8 border-b border-[#F8FAF5] items-center hover:bg-[#FDFDF5] transition-colors">
+                <div key={record.id} className="grid grid-cols-5 gap-4 px-10 py-8 border-b border-[#F8FAF5] items-center hover:bg-[#FDFDF5] transition-colors">
                   <div className="flex flex-col">
                     <span className="font-bold text-gray-800 text-sm">{record.username}</span>
                     <span className="text-[9px] text-gray-400 font-black tracking-tighter uppercase">ID: {record.user_id}</span>
                   </div>
-                  
-                  <div className="text-gray-600 text-xs font-medium lowercase">
-                    {record.email}
-                  </div>
-
-                  <div className="text-gray-600 font-serif italic truncate pr-4">
-                    {record.book_title}
-                  </div>
-
+                  <div className="text-gray-600 text-xs font-medium lowercase truncate">{record.email}</div>
+                  <div className="text-gray-600 font-serif italic truncate pr-4">{record.book_title}</div>
                   <div>
                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
                       record.finalStatus === 'returned' ? "bg-gray-100 text-gray-400" : "bg-[#EEF4E8] text-[#87A96B]"
                     }`}>
-                      {record.finalStatus === 'returned' ? 'Returned' : 'In Use'}
+                      {record.finalStatus === 'returned' ? 'Returned' : 'Borrowed'}
                     </span>
                   </div>
-
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#87A96B]"></div>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter w-14">Borrowed:</span>
-                      <span className="text-[11px] font-bold text-gray-600">
-                        {formatDateTime(record.displayBorrowDate)}
-                      </span>
+                      <span className="text-[9px] font-black text-gray-400 uppercase w-12">Out:</span>
+                      <span className="text-[10px] font-bold text-gray-600">{formatDT(record.displayBorrowDate)}</span>
                     </div>
                     {record.finalStatus === "returned" && (
                       <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter w-14">Returned:</span>
-                        <span className="text-[11px] font-bold text-gray-600 italic">
-                          {formatDateTime(record.displayReturnDate)}
-                        </span>
+                        <span className="text-[9px] font-black text-gray-400 uppercase w-12">In:</span>
+                        <span className="text-[10px] font-bold text-gray-400 italic">{formatDT(record.displayReturnDate)}</span>
                       </div>
                     )}
                   </div>

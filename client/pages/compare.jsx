@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 
+const API_BASE = "https://library-backend-production-244f.up.railway.app";
+
 export default function ComparePage() {
   const [restBooks, setRestBooks] = useState([]);
   const [graphqlBooks, setGraphqlBooks] = useState([]);
@@ -23,9 +25,7 @@ export default function ComparePage() {
   const fetchRestData = async () => {
     try {
       const start = performance.now();
-      const response = await fetch(
-        "https://library-backend-production-244f.up.railway.app/api/books"
-      );
+      const response = await fetch(`${API_BASE}/api/books`);
       const data = await response.json();
       const end = performance.now();
 
@@ -42,29 +42,25 @@ export default function ComparePage() {
       const start = performance.now();
       const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        "https://library-backend-production-244f.up.railway.app/graphql",
-        {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify({
-            query: `
-              query {
-                getAllBooks {
-                  id
-                  title
-                  author
-                  category
-                  year
-                }
+      const response = await fetch(`${API_BASE}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          query: `
+            query {
+              getAllBooks {
+                id
+                title
+                author
+                category
               }
-            `, 
-          }),
-        }
-      );
+            }
+          `,
+        }),
+      });
 
       const result = await response.json();
       const end = performance.now();
@@ -159,7 +155,6 @@ export default function ComparePage() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-10 opacity-50">
                       <p className="text-xs font-bold uppercase tracking-widest text-red-400">Fetch Failed</p>
-                      <p className="text-[10px] mt-1 text-gray-400 text-center px-4">Đảm bảo bạn đã đăng nhập và tên field khớp với Schema</p>
                     </div>
                   )}
                 </div>
@@ -167,21 +162,21 @@ export default function ComparePage() {
             </div>
           </div>
         )}
-        
+
         <div className="bg-white border border-[#E2E9D1] rounded-[2.5rem] p-10 shadow-sm mt-12">
           <h2 className="text-xl font-serif font-bold text-gray-900 mb-8">Comparative Analysis</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <AnalysisCard 
               title="Over-fetching" 
-              desc="REST API trả về toàn bộ object ngay cả khi chỉ cần một phần dữ liệu, làm tăng tải trọng không cần thiết."
+              desc="REST API returns full objects even when specific fields are not required, increasing bandwidth usage."
             />
             <AnalysisCard 
               title="Under-fetching" 
-              desc="GraphQL ngăn chặn việc phải gửi nhiều yêu cầu bằng cách cho phép bạn xác định chính xác các trường mình cần."
+              desc="GraphQL avoids multiple round-trips by allowing you to define exactly what fields are returned in one request."
             />
             <AnalysisCard 
               title="Efficiency" 
-              desc="GraphQL thường có kích thước payload nhỏ hơn vì dữ liệu được chọn lọc ngay từ phía server."
+              desc="GraphQL payloads are typically smaller because the selection logic happens directly on the server."
             />
           </div>
         </div>

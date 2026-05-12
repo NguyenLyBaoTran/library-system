@@ -1,28 +1,57 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { getAllBooks } from "../services/graphqlApi";
+
+const API_URL = "https://library-backend-production-244f.up.railway.app/api/books";
 
 export default function GraphQLDemoPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
-
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const data = await getAllBooks();
-      setBooks(data || []);
-    } catch (error) {
-      console.log(error);
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+        "Authorization": token ? `Bearer ${token}` : "",
+      };
+
+      const res = await fetch(API_URL, { method: "GET", headers });
+      const basicData = await res.json();
+
+      if (res.ok && Array.isArray(basicData)) {
+        const detailPromises = basicData.map((book) =>
+          fetch(`${API_URL}/${book.id}`, { headers })
+            .then((r) => r.json())
+            .catch(() => book)
+        );
+
+        const detailedData = await Promise.all(detailPromises);
+
+        const normalizedData = detailedData.map((book) => ({
+          ...book,
+          isAvailable:
+            book.isAvailable === true ||
+            book.isAvailable === 1 ||
+            book.isAvailable === "true",
+        }));
+
+        setBooks(normalizedData);
+      } else {
+        throw new Error("Failed to fetch");
+      }
+    } catch (err) {
+      console.error(err);
       setError("Failed to fetch books");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#FDFDF5]">
@@ -75,7 +104,7 @@ export default function GraphQLDemoPage() {
                     {book.category}
                   </span>
                   <span className="text-xs font-serif italic text-gray-400">
-                    est. {book.year}
+                    est. {book.published_year || book.year}
                   </span>
                 </div>
 
@@ -94,12 +123,18 @@ export default function GraphQLDemoPage() {
                 </p>
 
                 <div className="mt-8 pt-6 border-t border-[#F1F4E8]">
-                   <div className="flex flex-col">
-                     <span className="text-[8px] font-black uppercase tracking-tighter text-gray-300">Status</span>
-                     <span className={`text-[10px] font-bold uppercase tracking-widest ${book.isAvailable ? 'text-[#87A96B]' : 'text-red-300'}`}>
-                       {book.isAvailable ? 'Available' : 'Borrowed'}
-                     </span>
-                   </div>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase tracking-tighter text-gray-300">
+                      Status
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-widest ${
+                        book.isAvailable ? "text-[#87A96B]" : "text-red-400"
+                      }`}
+                    >
+                      {book.isAvailable ? "Available" : "Borrowed"}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
