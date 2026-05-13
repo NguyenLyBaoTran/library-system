@@ -1,5 +1,4 @@
-const BASE_URL =
-  "https://library-backend-production-244f.up.railway.app";
+const BASE_URL =  "";
 
 export async function getBookById(id) {
   const response = await fetch(

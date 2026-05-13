@@ -2,8 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { ApolloServer } = require("@apollo/server");
-const { expressMiddleware } = require("@apollo/server/express4");
+const { expressMiddleware } = require("@as-integrations/express5");
 const sequelize = require("./config/database");
+const path = require('path'); 
 
 const bookRoutes = require("./routes/bookRoutes");
 const typeDefs = require("./graphql/schema");
@@ -16,7 +17,7 @@ const BorrowRecord = require("./models/BorrowRecord");
 
 async function startServer() {
   const app = express();
-  const server = new ApolloServer({ typeDefs, resolvers, introspection: true,});
+  const server = new ApolloServer({ typeDefs, resolvers, introspection: true });
 
   await server.start();
 
@@ -26,15 +27,21 @@ async function startServer() {
   app.use("/api/books", bookRoutes);
 
   app.use(
-    "/graphql",
-    expressMiddleware(server, {
-      context: async ({ req }) => authMiddleware(req),
-    })
-  );
+  "/graphql",
+  express.json(),
+  expressMiddleware(server, {
+    context: async ({ req }) => authMiddleware(req),
+  })
+);
+
+  app.use(express.static(path.join(__dirname, 'public')));
+
+  app.get(/^(?!\/(api|graphql)).*$/, (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
   const PORT = process.env.PORT || 5000;
   try {
-
     await sequelize.authenticate();
 
     Book.hasMany(BorrowRecord, { foreignKey: 'book_id', as: 'borrow_records' });
@@ -45,9 +52,10 @@ async function startServer() {
 
     await sequelize.sync();
     app.listen(PORT, () => {
-     console.log(`✅ Server is running on port ${PORT}`);
-      console.log(`🚀 REST API: https://library-backend-production-244f.up.railway.app/api/books`);
-      console.log(`🚀 GraphQL: https://library-backend-production-244f.up.railway.app/graphql`);
+      console.log(`✅ Server is running on port ${PORT}`);
+      console.log(`🚀 System Online: http://localhost:${PORT}`);
+      console.log(`🚀 API REST: /api/books`);
+      console.log(`🚀 GraphQL: /graphql`);
     });
   } catch (error) {
     console.error("Unable to connect to the database:", error);

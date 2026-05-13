@@ -7,7 +7,7 @@ import {
 import { HttpLink } from "@apollo/client/link/http";
 
 const httpLink = new HttpLink({
-  uri: "https://library-backend-production-244f.up.railway.app/graphql",
+  uri: "/graphql",
 });
 
 const authLink = new ApolloLink(
