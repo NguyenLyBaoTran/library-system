@@ -74,7 +74,7 @@ export default function Navbar() {
                 Books
               </Link>
 
-              {user.username === "admin_library" && (
+              {user.role === "admin" && (
                 <>
                   <Link
                     href="/admin/books"
@@ -95,9 +95,11 @@ export default function Navbar() {
                 GraphQL
               </Link>
 
-              <Link href="/compare" className={navLinkClass("/compare")}>
-                Compare
-              </Link>
+              {user.role !== "admin" && (
+                <Link href="/compare" className={navLinkClass("/compare")}>
+                  Compare
+                </Link>
+              )}
 
               <div className="flex items-center gap-3">
                 <span className="text-[#87A96B]">{user.username}</span>
@@ -179,7 +181,7 @@ export default function Navbar() {
                   Books
                 </Link>
 
-                {user.username === "admin_library" && (
+                {user.role === "admin" && (
                   <>
                     <Link
                       href="/admin/books"
@@ -206,13 +208,15 @@ export default function Navbar() {
                   GraphQL
                 </Link>
 
-                <Link
-                  href="/compare"
-                  onClick={() => setOpen(false)}
-                  className={mobileNavClass("/compare")}
-                >
-                  Compare
-                </Link>
+               {user.role !== "admin" && (
+                  <Link
+                    href="/compare"
+                    onClick={() => setOpen(false)}
+                    className={mobileNavClass("/compare")}
+                  >
+                    Compare
+                  </Link>
+                )}
 
                 <div className="flex items-center gap-3">
                   <span className="text-[#87A96B]">{user.username}</span>

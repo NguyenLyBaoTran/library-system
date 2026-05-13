@@ -47,7 +47,7 @@ export async function getAllBooks() {
         title
         author
         category
-        year
+        published_year
         isAvailable
       }
     }

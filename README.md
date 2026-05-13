@@ -2,99 +2,117 @@
 
 This project is a Library Management System built with Node.js, Express, Sequelize, and Apollo Server. It implements a dual-stack API design, supporting both RESTful and GraphQL endpoints to manage books, users, and borrowing records.
 
-## Deployment Information
-- **Live API URL:** https://library-backend-production-244f.up.railway.app/
-- **GraphQL Endpoint:** https://library-backend-production-244f.up.railway.app/graphql
-- **REST Base URL:** https://library-backend-production-244f.up.railway.app/api/books
-- **Frontend Integration:** (Optional) Ready for connection via Apollo Client or Axios.
+## I. Deployment Information
 
-## Key Features
-- Dual-API Design: Full support for REST and GraphQL to compare efficiency (Over-fetching/Under-fetching).
-- Authentication and Authorization: Stateless security using JWT (JSON Web Tokens).
-- Role-based Access Control: Differentiation between Admin (Manage books/returns) and User (Borrow books).
-- Stateless Architecture: No session storage, making it scalable and modern.
+* **Live Website URL:** [https://library-backend-production-244f.up.railway.app/](https://library-backend-production-244f.up.railway.app/)
+* **GraphQL Endpoint:** [https://library-backend-production-244f.up.railway.app/graphql](https://library-backend-production-244f.up.railway.app/graphql)
+* **REST Base URL:** [https://library-backend-production-244f.up.railway.app/api/books](https://library-backend-production-244f.up.railway.app/api/books)
+* **Frontend Integration:** Integrated into the server as static assets served from the `/public` directory.
+
+## II. Key Features
+
+* Dual-API Design: Full support for REST and GraphQL to compare efficiency (Over-fetching/Under-fetching).
+* Integrated Frontend: Next.js frontend is pre-built and served directly by the Express backend.
+* Role-based Access Control: Admin manages inventory and records; Users borrow books and access the Comparison Dashboard.
+* Comparison Tool: A dedicated dashboard for users to analyze real-time performance metrics between API types.
 
 ---
 
-## Setup Instructions
+## III. Setup Instructions (Step-by-Step)
 
 ### 1. Prerequisites
-- Node.js installed (v16 or higher).
-- MySQL database (Railway Cloud Database).
 
-### 2. Installation
+* Node.js environment (v18.x or higher recommended).
+* Internet connection to access the Railway MySQL database.
+
+### 2. Local Installation
+
 1. Clone the repository:
+
 ```bash
-git clone [https://github.com/NguyenLyBaoTran/library-system.git](https://github.com/NguyenLyBaoTran/library-system.git)
+git clone https://github.com/NguyenLyBaoTran/library-system.git
 
 ```
 
 2. Navigate to the server directory:
 
 ```bash
-cd server
+cd library-system/server
 
 ```
 
-3. Install dependencies:
+3. Install all required backend dependencies:
 
 ```bash
 npm install
 
 ```
 
-### 3. Running the Server
+### 3. Environment Configuration
+
+Create a `.env` file in the `server/` directory. Copy and paste the following template exactly:
+
+```env
+# Server Configuration
+PORT=5000
+
+# Database Configuration (Railway)
+DB_HOST=turntable.proxy.rlwy.net
+DB_PORT=15664
+DB_USER=root
+DB_PASSWORD=puhcSoXiZyZPeGDEJZuZlYchDFkGsjXZ
+DB_NAME=railway
+
+# Security
+JWT_SECRET=Trân123
+
+```
+
+### 4. Running the Application
+
+To start the production server:
 
 ```bash
-# Start server with Nodemon (Development)
+npm start
+
+```
+
+To start the development server with hot-reload:
+
+```bash
 npm run dev
 
 ```
 
----
-
-## Environment Variables (.env)
-
-Create a .env file in the server directory:
-
-```env
-PORT=5000
-JWT_SECRET=secret
-DB_NAME=railway
-DB_USER=root
-DB_PASSWORD=your_railway_password
-DB_HOST=your_railway_host_url
-DB_PORT=your_railway_port
-
-```
+The application will be accessible at: `http://localhost:5000`
 
 ---
 
-## Testing Credentials (REQUIRED)
+## IV. Testing Credentials
 
-Use these pre-registered accounts to test the system:
+To verify the Role-based Access Control and Comparison features, use the following credentials:
 
 | Role | Username | Password | Permissions |
 | --- | --- | --- | --- |
-| Admin | admin_library | password123 | Add/Update/Delete/Return Books |
-| User | user_test | password123 | View books, Borrow books |
+| **Admin** | `admin_library` | `password123` | Manage Books, View Records |
+| **User** | `user_test` | `password123` | View books, Borrow books, Access Compare Dashboard|
 
 ---
 
-## API Documentation
+## V. API Documentation & Analysis
 
 ### 1. GraphQL Endpoint
 
-* URL: http://localhost:5000/graphql (Local) or [Your-Railway-Link]/graphql
-* Use Case: Optimized for Frontend to fetch exactly what data is needed.
-* Example Query (Get all available books):
+* URL: `http://localhost:5000/graphql`
+* Purpose: Demonstrates precise data fetching. Clients can request only necessary fields (e.g., just `title` and `author`) to minimize payload size.
+* Sample Query:
 
 ```graphql
 query {
-  getAllBooks {
+  getAvailableBooks {
     id
     title
-    isAvailable
+    category
   }
 }
 
@@ -102,18 +120,21 @@ query {
 
 ### 2. RESTful Endpoints
 
-* Base URL: http://localhost:5000/api/books (Local) or [Your-Railway-Link]/api/books
-* Use Case: Administrative tasks or checking full book history.
-* Endpoints:
-* GET /api/books: List all books (Shows Over-fetching).
-* GET /api/books/:id: Book details with borrowing history (Shows Under-fetching).
-* POST /api/books: Admin adds new books (Supports Bulk Create).
-* DELETE /api/books/:id: Admin removes a book.
+* Base URL: `http://localhost:5000/api/books`
+* Purpose: Demonstrates traditional resource-based routing. Returns full objects regardless of client needs (Over-fetching).
+* Key Endpoints:
+* `GET /api/books`: Retrieve all available books.
+* `POST /api/books`: Admin adds new books (Requires Admin JWT).
+* `DELETE /api/books/:id`: Admin removes books.
 
 
 
 ---
 
-## Implementation Detail (Rubric ID: 3)
+## VI. Implementation Detail (Rubric ID: 3)
 
-This system demonstrates how GraphQL solves Over-fetching (by allowing clients to select specific fields) and how REST can suffer from Under-fetching (requiring multiple calls or large nested objects to get related data like BorrowRecords). Both APIs share the same Sequelize Models to ensure data consistency and system integrity.
+The system architecture facilitates a direct comparative analysis between REST and GraphQL.
+
+* **Over-fetching Solution:** GraphQL allows the Compare Dashboard to request only 5 specific fields, whereas the REST counterpart returns the entire Book model including timestamps and raw database IDs.
+* **Access Control:** The system uses a customized Middleware to parse JWTs. The Admin (`admin_library`) is granted access to the management UI but restricted from the Compare page to maintain test data objectivity. Users have access to the Compare page which fetches data using the `getAvailableBooks` query to ensure results match the public REST API output (29 books).
+* **Frontend Serving:** The `server/public` folder contains the optimized build of the Next.js application, ensuring the entire product is deployable as a single unit.
