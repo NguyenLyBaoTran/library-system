@@ -38,7 +38,7 @@ git clone https://github.com/NguyenLyBaoTran/library-system.git
 2. Navigate to the server directory:
 
 ```bash
-cd library-system/server
+cd 524H0040_524H0130/server
 
 ```
 
