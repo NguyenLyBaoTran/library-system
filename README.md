@@ -7,6 +7,7 @@ This project is a Library Management System built with Node.js, Express, Sequeli
 * **Live Website URL:** [https://library-backend-production-244f.up.railway.app/](https://library-backend-production-244f.up.railway.app/)
 * **GraphQL Endpoint:** [https://library-backend-production-244f.up.railway.app/graphql](https://library-backend-production-244f.up.railway.app/graphql)
 * **REST Base URL:** [https://library-backend-production-244f.up.railway.app/api/books](https://library-backend-production-244f.up.railway.app/api/books)
+* **Demo Video:** [https://youtu.be/eynlpE5Otec?si=XyQ8vUAb7XqkFvQ1](https://youtu.be/eynlpE5Otec?si=XyQ8vUAb7XqkFvQ1)
 * **Frontend Integration:** Integrated into the server as static assets served from the `/public` directory.
 
 ## II. Key Features
