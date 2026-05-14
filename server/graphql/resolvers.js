@@ -21,13 +21,6 @@ const resolvers = {
       if (!book) throw new Error("Book not found");
       return book;
     },
-
-    getBookById: async (_, { id }, context) => {
-      if (!context.isAuth) throw new Error("Unauthorized");
-      const book = await Book.findByPk(id);
-      if (!book) throw new Error("Book not found");
-      return book;
-    },
   },
   Mutation: {
     register: async (_, { username, email, password }) => {
